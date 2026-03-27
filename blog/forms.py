@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Post, Comment, Story
+from .models import Post, Comment, Story, Profile
 
 
 class RegisterForm(UserCreationForm):
@@ -38,4 +38,16 @@ class StoryForm(forms.ModelForm):
         fields = ['image']
         widgets = {
             'image': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['avatar', 'bio', 'location', 'dob']
+        widgets = {
+            'avatar': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+            'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Tell something about yourself...'}),
+            'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Your city or country'}),
+            'dob': forms.DateInput(attrs={'class': 'form-control', 'type': 'date'}),
         }

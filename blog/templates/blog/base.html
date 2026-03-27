@@ -32,8 +32,21 @@
             </ul>
             <div class="d-flex align-items-center gap-2">
                 {% if user.is_authenticated %}
-                    <span class="text-muted me-1">Hi, <strong>{{ user.username }}</strong></span>
-                    <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">Logout</a>
+                    <div class="dropdown">
+                        <button class="author-avatar dropdown-toggle-clean" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false"
+                            style="width:38px;height:38px;border:none;cursor:pointer;">
+                            {{ user.username|first|upper }}
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-3 py-2" aria-labelledby="userDropdown"
+                            style="min-width:160px;">
+                            <li><a class="dropdown-item py-2" href="{% url 'my_posts' %}">My Posts</a></li>
+                            <li><a class="dropdown-item py-2" href="{% url 'profile' %}">Profile</a></li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li>
+                                <a class="dropdown-item py-2 fw-bold" href="{% url 'logout' %}">Log Out</a>
+                            </li>
+                        </ul>
+                    </div>
                 {% else %}
                     <a href="{% url 'login' %}" class="btn btn-login btn-sm">Log In</a>
                     <a href="{% url 'register' %}" class="btn btn-outline-primary btn-sm">Register</a>

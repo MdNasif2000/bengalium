@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 class Post(models.Model):
@@ -8,6 +10,7 @@ class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     image = models.ImageField(upload_to='post_images/', blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    views = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         return self.title
@@ -35,6 +38,28 @@ class Like(models.Model):
 
     def __str__(self):
         return f'{self.user.username} likes {self.post.title}'
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    bio = models.TextField(blank=True, max_length=300)
+    location = models.CharField(max_length=100, blank=True)
+    dob = models.DateField(null=True, blank=True)
+
+    def __str__(self):
+        return f'{self.user.username} profile'
+
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
+
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    Profile.objects.get_or_create(user=instance)
 
 
 class Story(models.Model):

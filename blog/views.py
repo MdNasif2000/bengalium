@@ -3,8 +3,8 @@ from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.contrib.auth.forms import AuthenticationForm
-from .models import Post, Comment, Like, Story
-from .forms import RegisterForm, PostForm, CommentForm, StoryForm
+from .models import Post, Comment, Like, Story, Profile
+from .forms import RegisterForm, PostForm, CommentForm, StoryForm, ProfileForm
 
 
 def home(request):
@@ -20,6 +20,8 @@ def all_posts(request):
 
 def post_detail(request, pk):
     post = get_object_or_404(Post, pk=pk)
+    Post.objects.filter(pk=pk).update(views=post.views + 1)
+    post.refresh_from_db()
     comments = post.comments.all().order_by('-created_at')
     comment_form = CommentForm()
     user_liked = False
@@ -147,3 +149,30 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect('home')
+
+
+@login_required
+def my_posts(request):
+    posts = Post.objects.filter(author=request.user).order_by('-created_at')
+    return render(request, 'blog/my_posts.html', {'posts': posts})
+
+
+@login_required
+def profile(request):
+    profile, _ = Profile.objects.get_or_create(user=request.user)
+    posts = Post.objects.filter(author=request.user).order_by('-created_at')
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, request.FILES, instance=profile)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated.')
+            return redirect('profile')
+    else:
+        form = ProfileForm(instance=profile)
+    return render(request, 'blog/profile.html', {
+        'form': form,
+        'posts': posts,
+        'total_posts': posts.count(),
+        'total_likes': sum(p.total_likes() for p in posts),
+        'total_views': sum(p.views for p in posts),
+    })
