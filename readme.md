@@ -1,4 +1,4 @@
-# 🌐 Bengalium (Django Blog Website)
+# 🌐 Bengalium (Blog Website)
 
 A full-featured blog web application built with **Django**, where users can create, manage, and interact with blog posts. This project includes authentication, comments, likes, and an admin dashboard.
 
